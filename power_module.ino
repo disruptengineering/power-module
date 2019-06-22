@@ -12,7 +12,7 @@ void setup() {
 
 void loop() {
   
-  voltage = getVoltage();
+  voltage = getVoltage(Vsensor_pin);
   Serial.println(voltage);
   delay(1000);
   
@@ -20,9 +20,9 @@ void loop() {
 
 //FUNCTIONS
 
-double getVoltage(){
+double getVoltage(pin){
 
-  int volt = analogRead(Vsensor_pin);// read the input
+  int volt = analogRead(pin);// read the input
 
   if (volt < 2429){
     double voltage_scal = 0.0043*volt+0.4894; //scaled voltage for 0-10.99v
