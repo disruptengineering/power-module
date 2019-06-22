@@ -1,10 +1,18 @@
 #include "math.h"
 
+
+//Variables
+
+//Battery Capacity in Amp Hours (Ah)
+const double BatteryCap=8.4
+
+
 //PINS
 
 //Voltage sensor
 const int Vsensor_pin=34;
 //Current sensor
+
 
 void setup() {
   Serial.begin(115200);
