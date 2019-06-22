@@ -42,3 +42,11 @@ double getVoltage(){
   }
   
 }
+
+double getCurrent(){
+  //Code here
+}
+
+bool isBatteryFull(){
+  //Code here
+}
