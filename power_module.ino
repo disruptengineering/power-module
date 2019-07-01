@@ -58,3 +58,12 @@ double getCurrent(){
 bool isBatteryFull(){
   //Code here
 }
+
+double getBatteryLevel(capacity){
+  //Run isBatteryFull 
+  if (isBatteryFull() == TRUE){
+
+  } else {
+    
+  }
+}
