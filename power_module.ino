@@ -74,7 +74,8 @@ double getEnergyConsumed(double delay_variable){
   //get current
   double current = getCurrent(Csensor_pin);
   //multiply delay by amps to get amp seconds, then convert to milliamp hours
-  double energy = current *  delay_variable * 0.2777;
+  double energy = current *  delay_variable * 0.2777 / 1000;
+  //1000 converts delay ms to s
   return energy;
 }
 
