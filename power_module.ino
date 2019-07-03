@@ -103,7 +103,17 @@ void loop() {
   Serial.print(totalEnergyConsumed);
   Serial.print("mAh");
   Serial.println("");
+
+  //BATTERY LEVEL
+  double energyPercent = 100 - (totalEnergyConsumed/(10*batteryCap));
+  Serial.println("");
+  Serial.print("Estimated Battery Level: ");
+  Serial.print(energyPercent);
+  Serial.print("%");
+  Serial.println("");
   Serial.println("---------------");
+  
+  //BLUETOOTH
 
 }
 
