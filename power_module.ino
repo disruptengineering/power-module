@@ -4,31 +4,19 @@
 //Variables
 
 //Battery Capacity in Amp Hours (Ah)
-const double BatteryCap=8.4
-
+double batteryCap = 8.4;
 
 //PINS
 
 //Voltage sensor
 const int Vsensor_pin=34;
 //Current sensor
+const int Csensor_pin=35;
 
-
-void setup() {
-  Serial.begin(115200);
-}
-
-void loop() {
-  
-  voltage = getVoltage(Vsensor_pin);
-  Serial.println(voltage);
-  delay(1000);
-  
-}
 
 //FUNCTIONS
 
-double getVoltage(pin){
+double getVoltage(int pin){
 
   int volt = analogRead(pin);// read the input
 
@@ -51,7 +39,7 @@ double getVoltage(pin){
   
 }
 
-double getCurrent(){
+double getCurrent(int pin){
   //Code here
 }
 
@@ -59,7 +47,7 @@ bool isBatteryFull(){
   //Code here
 }
 
-double getBatteryLevel(capacity){
+double getBatteryLevel(double capacity){
   //Run isBatteryFull 
   if (isBatteryFull() == TRUE){
 
@@ -67,3 +55,40 @@ double getBatteryLevel(capacity){
     
   }
 }
+
+double getEnergyConsumed(double current, double delay){
+  //delay
+  delay(delay);
+  //get current
+  double current = getCurrent();
+  //multiply delay by amps to get amp seconds, then convert to milliamp hours
+  double energy = current *  delay * 0.2777;
+  return energy;
+}
+
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  //SHOW VOLTAGE, CURRENT READINGS
+  double voltage = getVoltage(Vsensor_pin);
+  double current = getCurrent(Csensor_pin);
+  Serial.println("Voltage: ");
+  Serial.print(voltage);
+  Serial.print("V, ");
+  Serial.print("Current: ")
+  Serial.print(current);
+  Serial.print("A");
+
+  //POWER CONSUMPTION
+  double energy = getEnergyConsumed(current, 1000);
+  totalEnergyConsumed += energy;
+  Serial.println("");
+  Serial.print("Total Energy Consumed: ");
+  Serial.print(totalEnergyConsumed);
+  Serial.print("mAh");
+  
+}
+
