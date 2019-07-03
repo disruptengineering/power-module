@@ -40,7 +40,34 @@ double getVoltage(int pin){
 }
 
 double getCurrent(int pin){
-  //Code here
+  int V = analogRead(Csensor_pin);    // read the analog current input
+  
+  V = V - 1750; // Subtract offset for 1st current sensor (best one so far)
+  //V = V - 1775; // Subtract offset for 3rd current sensor
+  //V = V - 1768; // Subtract offset for 4th current sensor
+  voltage_Csensor = V * vpp;
+  current_convert = voltage_Csensor/0.100;
+        
+  if (current_convert < 2){
+  double current_correct = current_convert - 0.15;
+        
+    Serial.print ("Current: ");
+    Serial.println(current_correct);
+    Serial.println();
+  }
+
+  else if (current_convert >= 1.1 && current_convert <= 2.5){
+    Serial.print ("Current: ");
+    Serial.println(current_convert);
+    Serial.println();
+  }
+
+  else {
+    double current_correct = current_convert + 0.2;
+    Serial.print ("Current: ");
+    Serial.println(current_correct);
+    Serial.println();
+  }
 }
 
 bool isBatteryFull(){
