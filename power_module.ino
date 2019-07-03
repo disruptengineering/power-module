@@ -3,6 +3,9 @@
 
 //Variables
 
+//Conversion Values
+const float vpp = 0.0012210012210012; 
+
 //Battery Capacity in Amp Hours (Ah)
 double batteryCap = 8.4;
 
@@ -40,33 +43,25 @@ double getVoltage(int pin){
 }
 
 double getCurrent(int pin){
-  int V = analogRead(Csensor_pin);    // read the analog current input
+  int currentV = analogRead(pin);    // read the analog current input
   
-  V = V - 1750; // Subtract offset for 1st current sensor (best one so far)
+  currentV = currentV - 1750; // Subtract offset for 1st current sensor (best one so far)
   //V = V - 1775; // Subtract offset for 3rd current sensor
   //V = V - 1768; // Subtract offset for 4th current sensor
-  voltage_Csensor = V * vpp;
+
+  voltage_Csensor = currentV * vpp;
   current_convert = voltage_Csensor/0.100;
         
   if (current_convert < 2){
-  double current_correct = current_convert - 0.15;
-        
-    Serial.print ("Current: ");
-    Serial.println(current_correct);
-    Serial.println();
+    double current_correct = current_convert - 0.15;
+    return current_correct;
   }
-
   else if (current_convert >= 1.1 && current_convert <= 2.5){
-    Serial.print ("Current: ");
-    Serial.println(current_convert);
-    Serial.println();
+    return current_convert;
   }
-
   else {
     double current_correct = current_convert + 0.2;
-    Serial.print ("Current: ");
-    Serial.println(current_correct);
-    Serial.println();
+    return current_correct
   }
 }
 
@@ -87,7 +82,7 @@ double getEnergyConsumed(double current, double delay){
   //delay
   delay(delay);
   //get current
-  double current = getCurrent();
+  double current = getCurrent(Csensor_pin);
   //multiply delay by amps to get amp seconds, then convert to milliamp hours
   double energy = current *  delay * 0.2777;
   return energy;
