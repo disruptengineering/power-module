@@ -19,6 +19,10 @@ const int Vsensor_pin=34;
 const int Csensor_pin=35;
 
 
+void setup() {
+  Serial.begin(115200);
+}
+
 //FUNCTIONS
 
 double getVoltage(int pin){
@@ -80,10 +84,6 @@ double getEnergyConsumed(double delay_variable){
 }
 
 
-void setup() {
-  Serial.begin(115200);
-}
-
 void loop() {
   //SHOW VOLTAGE, CURRENT READINGS
   double voltage = getVoltage(Vsensor_pin);
@@ -116,4 +116,3 @@ void loop() {
   //BLUETOOTH
 
 }
-
