@@ -2,6 +2,8 @@
 
 
 //Variables
+double totalEnergyConsumed = 0;
+
 
 //Conversion Values
 const float vpp = 0.0012210012210012; 
@@ -31,26 +33,26 @@ double getVoltage(int pin){
   //2429 is the analog voltage at which we will switch over to equation two to display scaled voltage
   else if (volt < 3293 && volt > 2429){
     double voltage_scal = 0.0036*volt+2.1748; //scaled voltage for 11-13.99v
-    return voltage_scal
+    return voltage_scal;
   }
 
   //3293 is the analog voltage reading at which we will switch over to equation three to display scaled voltage
   else {
     double voltage_scal = 0.0023*volt+6.3361; // scaled voltage for 14-15v
-    return voltage_scal
+    return voltage_scal;
   }
   
 }
 
 double getCurrent(int pin){
-  int currentV = analogRead(pin);    // read the analog current input
+  double currentV = analogRead(pin);    // read the analog current input
   
   currentV = currentV - 1750; // Subtract offset for 1st current sensor (best one so far)
   //V = V - 1775; // Subtract offset for 3rd current sensor
   //V = V - 1768; // Subtract offset for 4th current sensor
 
-  voltage_Csensor = currentV * vpp;
-  current_convert = voltage_Csensor/0.100;
+  double voltage_Csensor = currentV * vpp;
+  double current_convert = voltage_Csensor/0.100;
         
   if (current_convert < 2){
     double current_correct = current_convert - 0.15;
@@ -61,30 +63,18 @@ double getCurrent(int pin){
   }
   else {
     double current_correct = current_convert + 0.2;
-    return current_correct
+    return current_correct;
   }
 }
 
-bool isBatteryFull(){
-  //Code here
-}
 
-double getBatteryLevel(double capacity){
-  //Run isBatteryFull 
-  if (isBatteryFull() == TRUE){
-
-  } else {
-    
-  }
-}
-
-double getEnergyConsumed(double current, double delay){
+double getEnergyConsumed(double delay_variable){
   //delay
-  delay(delay);
+  delay(delay_variable);
   //get current
   double current = getCurrent(Csensor_pin);
   //multiply delay by amps to get amp seconds, then convert to milliamp hours
-  double energy = current *  delay * 0.2777;
+  double energy = current *  delay_variable * 0.2777;
   return energy;
 }
 
@@ -97,20 +87,22 @@ void loop() {
   //SHOW VOLTAGE, CURRENT READINGS
   double voltage = getVoltage(Vsensor_pin);
   double current = getCurrent(Csensor_pin);
-  Serial.println("Voltage: ");
+  Serial.print("Voltage: ");
   Serial.print(voltage);
   Serial.print("V, ");
-  Serial.print("Current: ")
+  Serial.print("Current: ");
   Serial.print(current);
   Serial.print("A");
 
   //POWER CONSUMPTION
-  double energy = getEnergyConsumed(current, 1000);
+  double energy = getEnergyConsumed(1000);
   totalEnergyConsumed += energy;
   Serial.println("");
   Serial.print("Total Energy Consumed: ");
   Serial.print(totalEnergyConsumed);
   Serial.print("mAh");
-  
+  Serial.println("");
+  Serial.println("---------------");
+
 }
 
