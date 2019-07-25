@@ -16,7 +16,7 @@ double batteryCap = 8.4;
 //Voltage sensor
 const int Vsensor_pin=34;
 //Current sensor
-const int Csensor_pin=35;
+const int Csensor_pin=36;
 
 
 void setup() {
