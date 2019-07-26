@@ -1,5 +1,32 @@
 #include "math.h"
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
+uint8_t ble_v_value = 0;  //the set value function only accepts unsigned 8 bit integers
+
+/* Define the UUID for our Custom Service */
+#define serviceID BLEUUID((uint16_t)0x1700)
+
+/* Define our custom characteristic along with it's properties */
+BLECharacteristic customCharacteristic(
+  BLEUUID((uint16_t)0x1A00), 
+  BLECharacteristic::PROPERTY_READ | 
+  BLECharacteristic::PROPERTY_NOTIFY
+);
+
+/* This function handles the server callbacks */
+bool deviceConnected = false;
+class ServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* MyServer) {
+      deviceConnected = true;
+    };
+
+    void onDisconnect(BLEServer* MyServer) {
+      deviceConnected = false;
+    }
+};
 
 //Variables
 double totalEnergyConsumed = 0;
@@ -21,6 +48,36 @@ const int Csensor_pin=36;
 
 void setup() {
   Serial.begin(115200);
+  // Create and name the BLE Device
+  BLEDevice::init("PowerModule");
+
+  /* Create the BLE Server */
+  BLEServer *MyServer = BLEDevice::createServer();
+  MyServer->setCallbacks(new ServerCallbacks());  // Set the function that handles Server Callbacks
+
+  /* Add a service to our server */
+  BLEService *customService = MyServer->createService(BLEUUID((uint16_t)0x1700)); //  A random ID has been selected
+
+  /* Add a characteristic to the service */
+  customService->addCharacteristic(&customCharacteristic);  //customCharacteristic was defined above
+
+  /* Add Descriptors to the Characteristic*/
+  customCharacteristic.addDescriptor(new BLE2902());  //Add this line only if the characteristic has the Notify property
+
+  BLEDescriptor VariableDescriptor(BLEUUID((uint16_t)0x2901));  /*```````````````````````````````````````````````````````````````*/
+  VariableDescriptor.setValue("Temperature -40-60°C");          /* Use this format to add a hint for the user. This is optional. */
+  customCharacteristic.addDescriptor(&VariableDescriptor);    /*```````````````````````````````````````````````````````````````*/
+
+  /* Configure Advertising with the Services to be advertised */
+  MyServer->getAdvertising()->addServiceUUID(serviceID);
+
+  // Start the service
+  customService->start();
+
+  // Start the Server/Advertising
+  MyServer->getAdvertising()->start();
+
+  Serial.println("Waiting for a Client to connect...");
 }
 
 //FUNCTIONS
@@ -88,8 +145,9 @@ void loop() {
   //SHOW VOLTAGE, CURRENT READINGS
   double voltage = getVoltage(Vsensor_pin);
   double current = getCurrent(Csensor_pin);
-  Serial.print("Voltage: ");
-  Serial.print(voltage);
+  int16_t voltageScaled = (voltage * 100);
+  Serial.print("Voltage scaled: ");
+  Serial.print(voltageScaled);
   Serial.print("V, ");
   Serial.print("Current: ");
   Serial.print(current);
@@ -114,5 +172,10 @@ void loop() {
   Serial.println("---------------");
   
   //BLUETOOTH
+  if (deviceConnected) {
+    /* Set the value */
+    customCharacteristic.setValue((uint8)t*)&voltageScaled,2);  
+    customCharacteristic.notify();  // Notify the client of a change
+  }
 
 }
