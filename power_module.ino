@@ -4,28 +4,24 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
-uint8_t ble_v_value = 0;  //the set value function only accepts unsigned 8 bit integers
-
-/* Define the UUID for our Custom Service */
-#define serviceID BLEUUID((uint16_t)0x1700)
-
-/* Define our custom characteristic along with it's properties */
-BLECharacteristic customCharacteristic(
-  BLEUUID((uint16_t)0x1A00), 
-  BLECharacteristic::PROPERTY_READ | 
-  BLECharacteristic::PROPERTY_NOTIFY
-);
-
-/* This function handles the server callbacks */
+//BLE characteristics
+BLECharacteristic *pCharacteristic;
 bool deviceConnected = false;
-class ServerCallbacks: public BLEServerCallbacks {
-    void onConnect(BLEServer* MyServer) {
+
+//Defining the service & characteristics
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define CHARACTERISTIC_UUID_VOLTAGE "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+
+//Class for servercallbacks (Wether the device is connected or not)
+class MyServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
       deviceConnected = true;
     };
 
-    void onDisconnect(BLEServer* MyServer) {
+    void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
     }
+};
 };
 
 //Variables
@@ -51,33 +47,28 @@ void setup() {
   // Create and name the BLE Device
   BLEDevice::init("PowerModule");
 
-  /* Create the BLE Server */
-  BLEServer *MyServer = BLEDevice::createServer();
-  MyServer->setCallbacks(new ServerCallbacks());  // Set the function that handles Server Callbacks
+  // Create the BLE Server
+  BLEServer *pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
 
-  /* Add a service to our server */
-  BLEService *customService = MyServer->createService(BLEUUID((uint16_t)0x1700)); //  A random ID has been selected
+  // Create the BLE Service
+  BLEService *pService = pServer->createService(SERVICE_UUID);
 
-  /* Add a characteristic to the service */
-  customService->addCharacteristic(&customCharacteristic);  //customCharacteristic was defined above
+  // Create a BLE Characteristic
+  pCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID_VOLTAGE,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
 
-  /* Add Descriptors to the Characteristic*/
-  customCharacteristic.addDescriptor(new BLE2902());  //Add this line only if the characteristic has the Notify property
-
-  BLEDescriptor VariableDescriptor(BLEUUID((uint16_t)0x2901));  /*```````````````````````````````````````````````````````````````*/
-  VariableDescriptor.setValue("Temperature -40-60°C");          /* Use this format to add a hint for the user. This is optional. */
-  customCharacteristic.addDescriptor(&VariableDescriptor);    /*```````````````````````````````````````````````````````````````*/
-
-  /* Configure Advertising with the Services to be advertised */
-  MyServer->getAdvertising()->addServiceUUID(serviceID);
+  //BLE2902 needed to notify
+  pCharacteristic->addDescriptor(new BLE2902());
 
   // Start the service
-  customService->start();
+  pService->start();
 
-  // Start the Server/Advertising
-  MyServer->getAdvertising()->start();
-
-  Serial.println("Waiting for a Client to connect...");
+  // Start advertising (showing your ble name to connect to)
+  pServer->getAdvertising()->start();
+  Serial.println("Waiting for a client connection to notify...");
 }
 
 //FUNCTIONS
@@ -176,8 +167,8 @@ void loop() {
     /* Set the value */
     char volts[8];
     dtostrf(voltageScaled, 1, 2, volts);
-    customCharacteristic.setValue(volts);  
-    customCharacteristic.notify();  // Notify the client of a change
+    pCharacteristic.setValue(volts);  
+    pCharacteristic.notify();  // Notify the client of a change
   }
 
 }
