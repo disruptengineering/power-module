@@ -174,7 +174,9 @@ void loop() {
   //BLUETOOTH
   if (deviceConnected) {
     /* Set the value */
-    customCharacteristic.setValue((uint8_t*)&voltageScaled,2);  
+    char volts[8];
+    dtostrf(voltageScaled, 1, 2, volts);
+    customCharacteristic.setValue(volts);  
     customCharacteristic.notify();  // Notify the client of a change
   }
 
