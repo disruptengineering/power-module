@@ -6,11 +6,17 @@
 
 //BLE characteristics
 BLECharacteristic *pCharacteristic;
+BLECharacteristic *currentCharacteristic;
+BLECharacteristic *levelCharacteristic;
+
 bool deviceConnected = false;
 
 //Defining the service & characteristics
-#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
-#define CHARACTERISTIC_UUID_VOLTAGE "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define SERVICE_UUID "414D1C55-BF2C-4225-A229-548C5FD08B1C" 
+#define CHARACTERISTIC_UUID_VOLTAGE "942CA185-47CF-47B7-91A0-C8493374D059"
+#define CHARACTERISTIC_UUID_CURRENT "D8117FD9-FB40-43E8-A1D9-D75934CDAE36"
+#define CHARACTERISTIC_UUID_LEVEL "970F94F1-14E5-421F-8870-A0E1E6F32A09"
+
 
 //Class for servercallbacks (Wether the device is connected or not)
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -22,7 +28,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
       deviceConnected = false;
     }
 };
-};
+
 
 //Variables
 double totalEnergyConsumed = 0;
@@ -59,10 +65,21 @@ void setup() {
                       CHARACTERISTIC_UUID_VOLTAGE,
                       BLECharacteristic::PROPERTY_NOTIFY
                     );
-
+  // Create a BLE Characteristic
+  currentCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID_CURRENT,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
+ // Create a BLE Characteristic
+  levelCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID_LEVEL,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
+                    
   //BLE2902 needed to notify
   pCharacteristic->addDescriptor(new BLE2902());
-
+  currentCharacteristic->addDescriptor(new BLE2902());
+  levelCharacteristic->addDescriptor(new BLE2902());
   // Start the service
   pService->start();
 
@@ -137,6 +154,8 @@ void loop() {
   double voltage = getVoltage(Vsensor_pin);
   double current = getCurrent(Csensor_pin);
   int16_t voltageScaled = (voltage * 100);
+  int16_t currentScaled = (current * 100);
+
   Serial.print("Voltage scaled: ");
   Serial.print(voltageScaled);
   Serial.print("V, ");
@@ -166,9 +185,18 @@ void loop() {
   if (deviceConnected) {
     /* Set the value */
     char volts[8];
+    char ble_current[8];
+    char ble_level[8];
     dtostrf(voltageScaled, 1, 2, volts);
-    pCharacteristic.setValue(volts);  
-    pCharacteristic.notify();  // Notify the client of a change
+    dtostrf(currentScaled, 1, 2, ble_current);
+    dtostrf(energyPercent, 1, 2, ble_level);
+    pCharacteristic->setValue(volts);  
+    pCharacteristic->notify();  // Notify the client of a change
+    currentCharacteristic->setValue(ble_current);  
+    currentCharacteristic->notify();  // Notify the client of a change
+    levelCharacteristic->setValue(ble_level);  
+    levelCharacteristic->notify();  // Notify the client of a change
+
   }
 
 }
