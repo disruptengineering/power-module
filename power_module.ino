@@ -5,7 +5,7 @@
 #include <BLE2902.h>
 
 //BLE characteristics
-BLECharacteristic *pCharacteristic;
+BLECharacteristic *voltCharacteristic;
 BLECharacteristic *currentCharacteristic;
 BLECharacteristic *levelCharacteristic;
 
@@ -49,9 +49,9 @@ const int Csensor_pin=36;
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   // Create and name the BLE Device
-  BLEDevice::init("PowerModule");
+  BLEDevice::init("Power Module");
 
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();
@@ -61,23 +61,23 @@ void setup() {
   BLEService *pService = pServer->createService(SERVICE_UUID);
 
   // Create a BLE Characteristic
-  pCharacteristic = pService->createCharacteristic(
+  voltCharacteristic = pService->createCharacteristic(
                       CHARACTERISTIC_UUID_VOLTAGE,
-                      BLECharacteristic::PROPERTY_NOTIFY
+                      BLECharacteristic::PROPERTY_READ
                     );
   // Create a BLE Characteristic
   currentCharacteristic = pService->createCharacteristic(
                       CHARACTERISTIC_UUID_CURRENT,
-                      BLECharacteristic::PROPERTY_NOTIFY
+                      BLECharacteristic::PROPERTY_READ
                     );
  // Create a BLE Characteristic
   levelCharacteristic = pService->createCharacteristic(
                       CHARACTERISTIC_UUID_LEVEL,
-                      BLECharacteristic::PROPERTY_NOTIFY
+                      BLECharacteristic::PROPERTY_READ
                     );
                     
   //BLE2902 needed to notify
-  pCharacteristic->addDescriptor(new BLE2902());
+  voltCharacteristic->addDescriptor(new BLE2902());
   currentCharacteristic->addDescriptor(new BLE2902());
   levelCharacteristic->addDescriptor(new BLE2902());
   // Start the service
@@ -190,13 +190,9 @@ void loop() {
     dtostrf(voltageScaled, 1, 2, volts);
     dtostrf(currentScaled, 1, 2, ble_current);
     dtostrf(energyPercent, 1, 2, ble_level);
-    pCharacteristic->setValue(volts);  
-    pCharacteristic->notify();  // Notify the client of a change
+    voltCharacteristic->setValue(volts);  
     currentCharacteristic->setValue(ble_current);  
-    currentCharacteristic->notify();  // Notify the client of a change
     levelCharacteristic->setValue(ble_level);  
-    levelCharacteristic->notify();  // Notify the client of a change
-
   }
 
 }
