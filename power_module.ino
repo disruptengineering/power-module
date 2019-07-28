@@ -156,30 +156,30 @@ void loop() {
   int16_t voltageScaled = (voltage * 100);
   int16_t currentScaled = (current * 100);
 
-  Serial.print("Voltage scaled: ");
-  Serial.print(voltageScaled);
-  Serial.print("V, ");
-  Serial.print("Current: ");
-  Serial.print(current);
-  Serial.print("A");
+//  Serial.print("Voltage scaled: ");
+//  Serial.print(voltageScaled);
+//  Serial.print("V, ");
+//  Serial.print("Current: ");
+//  Serial.print(current);
+//  Serial.print("A");
 
   //POWER CONSUMPTION
   double energy = getEnergyConsumed(1000);
   totalEnergyConsumed += energy;
-  Serial.println("");
-  Serial.print("Total Energy Consumed: ");
-  Serial.print(totalEnergyConsumed);
-  Serial.print("mAh");
-  Serial.println("");
+//  Serial.println("");
+//  Serial.print("Total Energy Consumed: ");
+//  Serial.print(totalEnergyConsumed);
+//  Serial.print("mAh");
+//  Serial.println("");
 
   //BATTERY LEVEL
   double energyPercent = 100 - (totalEnergyConsumed/(10*batteryCap));
-  Serial.println("");
-  Serial.print("Estimated Battery Level: ");
-  Serial.print(energyPercent);
-  Serial.print("%");
-  Serial.println("");
-  Serial.println("---------------");
+//  Serial.println("");
+//  Serial.print("Estimated Battery Level: ");
+//  Serial.print(energyPercent);
+//  Serial.print("%");
+//  Serial.println("");
+//  Serial.println("---------------");
   
   //BLUETOOTH
   if (deviceConnected) {
@@ -189,7 +189,7 @@ void loop() {
     char ble_level[8];
     dtostrf(voltageScaled, 1, 2, volts);
     dtostrf(currentScaled, 1, 2, ble_current);
-    dtostrf(energyPercent, 1, 2, ble_level);
+    dtostrf(energyPercent, 1, 1, ble_level);
     voltCharacteristic->setValue(volts);  
     currentCharacteristic->setValue(ble_current);  
     levelCharacteristic->setValue(ble_level);  
