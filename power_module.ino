@@ -125,14 +125,14 @@ double getCurrent(int pin){
         
   if (current_convert < 2){
     double current_correct = current_convert - 0.15;
-    return current_correct;
+    return abs(current_correct);
   }
   else if (current_convert >= 1.1 && current_convert <= 2.5){
-    return current_convert;
+    return abs(current_convert);
   }
   else {
     double current_correct = current_convert + 0.2;
-    return current_correct;
+    return abs(current_correct);
   }
 }
 
