@@ -38,7 +38,7 @@ double totalEnergyConsumed = 0;
 const float vpp = 0.0012210012210012; 
 
 //Battery Capacity in Amp Hours (Ah)
-double batteryCap = 8.4;
+double batteryCap = 4.2;
 
 //PINS
 
