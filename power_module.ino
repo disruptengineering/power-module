@@ -157,7 +157,7 @@ void loop() {
   int16_t currentScaled = (current * 100);
 
 //  Serial.print("Voltage scaled: ");
-//  Serial.print(voltageScaled);
+  Serial.print(voltageScaled);
 //  Serial.print("V, ");
 //  Serial.print("Current: ");
 //  Serial.print(current);
